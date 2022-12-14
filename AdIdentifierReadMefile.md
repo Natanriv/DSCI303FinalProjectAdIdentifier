@@ -21,11 +21,11 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.naive_bayes import BernoulliNB
 
-#----------------------------------------------------------------------------------------------
-#Check and Clean up Data
+
+# Check and Clean up Data
 
 
-#see data:
+--- see data:
 
 df=pd.read_csv("add.csv")
 df.head()
@@ -42,7 +42,8 @@ df.columns=df.columns.astype('int')
 df.dtypes.head(3)
 
 
-# data set information:
+#data set information:
+
 print(df.info()) 
 
 
@@ -84,26 +85,26 @@ def replace_missing(df):
     return df
     
     
-# Here we use the function above to facilitate replacing values:
+#Here we use the function above to facilitate replacing values:
 
 
 df[[0,1,2,3]]=replace_missing(df.iloc[:,[0,1,2,3]].copy()).values
 
 
-# We use a lambda function to convert float values into rounded decimals to get a nominal output:
+#We use a lambda function to convert float values into rounded decimals to get a nominal output:
 df[3]=df[3].apply(lambda x:round(x))
 
-# Double check the information of the dataset:
+#Double check the information of the dataset:
 df.iloc[:,3:4].info() 
 
-#----------------------------------------------------------------------------------------------
-#Exploratory Data Analysis
 
-# General information on the dataset:
+# Exploratory Data Analysis
+
+#General information on the dataset:
 df[[0,1,2,3]].describe()
 
 
-# With this plot, we can visualize the data and see that it is right-skewed:
+#With this plot, we can visualize the data and see that it is right-skewed:
 fig,ax=plt.subplots(nrows=1,ncols=3)
 fig.set_figheight(5)
 fig.set_figwidth(13)
@@ -116,8 +117,8 @@ sns.distplot(df[2],ax=ax[2])
 #Simple pairplot:
 sns.pairplot(data=df.iloc[:,[0,1,2,3]])
 
-#----------------------------------------------------------------------------------------------
-#Plot Continous Data
+
+# Plot Continous Data
 
 #here we will plot the continous data vs the ad and non ad to see how is it distributed:
 
@@ -140,23 +141,23 @@ plt.ylabel('width')
 plt.title("Boxplot:  Target Vs Width ")
 plt.show()
 
-#----------------------------------------------------------------------------------------------
+
 # Change last column to numeric
 
 
 df.iloc[:,-1]=df.iloc[:,-1].replace(['ad.','nonad.'],[1,0])
 
 
-#----------------------------------------------------------------------------------------------
-#Prepare Features
+
+# Prepare Features
 
 
 x = df.iloc[:,:-1]
 y = df.iloc[:,-1]
 
 
-#----------------------------------------------------------------------------------------------
-#Scaling Data
+
+# Scaling Data
 
 
 scaled = StandardScaler()
@@ -167,13 +168,13 @@ sns.pairplot(data=df.iloc[:,[0,1,2,-1]], hue=1558)
 plt.show()
 
 
-#----------------------------------------------------------------------------------------------
-#Split Data
+
+# Split Data
 
 xtrain, xtest, ytrain, ytest = train_test_split(x,y,test_size=0.30,random_state=0) # 70% to train
 
-#----------------------------------------------------------------------------------------------
-#Modeling
+
+# Modeling
 
 
 #We will start checking which model is better for our data. 
@@ -224,8 +225,8 @@ def multi_grid_search(param_grid_array,estimator_list,x,y):
     return d
 
 
-#----------------------------------------------------------------------------------------------
-#Naive Bayes
+
+# Naive Bayes
     
 #Naive bayes classifier
 #mixed NB for continuous and binary features
@@ -251,8 +252,8 @@ for i in range(final_y.shape[0]):
   else:
     final_y[i,:]= int(0)
 
-#----------------------------------------------------------------------------------------------
-#Models 
+
+# Models 
 
 print(classification_report(np.array(ytest), np.array(final_y[:,0])))
 
@@ -272,8 +273,8 @@ def average_error_rate(test, pred):
     return np.divide(diff, test).mean()
     
     
-# Here we are just going through each model we chose and calculing the training / test mean absolute error
-# and the training / test mean error
+#Here we are just going through each model we chose and calculing the training / test mean absolute error
+#and the training / test mean error
 
 for i in model_list:
         print('__________________________________________________')
@@ -286,10 +287,10 @@ for i in model_list:
         print("Training mean error rate is: ", average_error_rate(ytrain, y_pred_train_af))
         print("Test mean error rate is: ", average_error_rate(ytest, y_pred_test_af))
         
-#----------------------------------------------------------------------------------------------
-#Bias and Variance Tradeoff       
+
+# Bias and Variance Tradeoff       
         
-# We will use the function that was written above for 20-fold cross validation
+#We will use the function that was written above for 20-fold cross validation
 obj=cross_Fucntion(model_list,cv=20)
 for model in obj:
     print('the model -'+str(model)+'has \n || crosss validated accuracy as  -> '+str(obj[model][0])+' | variance - '+str(obj[model][1])+' ||' )
@@ -297,12 +298,12 @@ for model in obj:
 
 
 
-#----------------------------------------------------------------------------------------------
-#Hyperparameter Optimization
+
+# Hyperparameter Optimization
 
 
-# Here, we are creating different grids of parameters for the different models that we use that we will 
-# pass into the Grid Search CV to optimize the hyperparameters.
+#Here, we are creating different grids of parameters for the different models that we use that we will 
+#pass into the Grid Search CV to optimize the hyperparameters.
 
 param_grid_svm=[
     {
@@ -353,48 +354,48 @@ param_grid_array=[param_grid_svm, param_grid_knn, param_grid_nb, param_grid_fore
 multi_grid_search(param_grid_array,model_list,xtrain,ytrain)
 
 
-#----------------------------------------------------------------------------------------------
-#Results
+
+# Results
 
 
 
-# The Logistic Regression Model was one of the best performing models after we did hypterparameter optimization.
-# We chose this model as one of the two that we saw to perform best with our data.
-# Here, we are showing the results. with this model.
+#The Logistic Regression Model was one of the best performing models after we did hypterparameter optimization.
+#We chose this model as one of the two that we saw to perform best with our data.
+#Here, we are showing the results. with this model.
 classifier_logistic=LogisticRegression(C= 0.1, penalty= 'l2')
 
 #Fit the data
 classifier_logistic.fit(xtrain,ytrain)
 
-# Create a visual Confusion Matrix that shows how the model performed
+#Create a visual Confusion Matrix that shows how the model performed
 sns.heatmap(pd.crosstab(ytest,classifier_logistic.predict(xtest)),cmap='coolwarm')
 plt.xlabel('predicted')
 plt.ylabel('actual')
 plt.show()
 
-# Show the classification report once more to have those scores again
+#Show the classification report once more to have those scores again
 print(classification_report(ytest,classifier_logistic.predict(xtest)))
 
 
 
-# Similarly to what we did above, we chose a Random Forest Classifier model to be our second best model based on
-# its performance and the score from cross-validation.
+#Similarly to what we did above, we chose a Random Forest Classifier model to be our second best model based on
+#its performance and the score from cross-validation.
 classifier_forest=RandomForestClassifier()
 
 #Fit the data
 classifier_forest.fit(xtrain,ytrain)
 
-# Create a visual Confusion Matrix that shows how the model performed
+#Create a visual Confusion Matrix that shows how the model performed
 sns.heatmap(pd.crosstab(ytest,classifier_forest.predict(xtest)),cmap='coolwarm')
 plt.xlabel('predicted')
 plt.ylabel('actual')
 plt.show()
 
-# Show the classification report once more to have those scores again
+#Show the classification report once more to have those scores again
 print(classification_report(ytest,classifier_forest.predict(xtest)))
 
-#----------------------------------------------------------------------------------------------
-#Feature Selection
+
+# Feature Selection
 
 #Install mlxtend
 !pip install mlxtend
@@ -404,7 +405,7 @@ sys.modules['sklearn.externals.joblib'] = joblib
 
 
 
-# Import sequenctial features selector as SFS
+#Import sequenctial features selector as SFS
 from mlxtend.feature_selection import SequentialFeatureSelector as SFS
 from mlxtend.plotting import plot_sequential_feature_selection as plot_sfs
 
@@ -420,8 +421,8 @@ sfs = SFS(LogisticRegression(),
 sfs = sfs.fit(xtrain, ytrain)
 
 
-# Here, we are visualizing the performance of the model with a given number of inputs to help see what would be 
-# the best number of features.
+#Here, we are visualizing the performance of the model with a given number of inputs to help see what would be 
+#the best number of features.
 
 fig = plot_sfs(sfs.get_metric_dict(), kind='std_err')
 
