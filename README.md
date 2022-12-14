@@ -1,2 +1,2 @@
-# DSCI303FinalProjectAdIdentifier
-Ad Identifier Project
+# DSCI303 Final Project 
+Project Name: Ad Identifier
